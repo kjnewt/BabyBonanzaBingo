@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Baby Bonanza Bingo</title>
+<style>
+  :root{
+    --ink:#24313f;
+    --muted:#667085;
+    --paper:#fffdf9;
+    --card:#ffffff;
+    --line:#d9dde3;
+    --accent:#7c6df2;
+    --accent2:#f2a65a;
+    --accent3:#68b0ab;
+    --soft:#f7f3ff;
+    --mark:#ebe7ff;
+  }
+
+  *{box-sizing:border-box}
+
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family: Arial, Helvetica, sans-serif;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(124,109,242,.10), transparent 28%),
+      radial-gradient(circle at 90% 15%, rgba(242,166,90,.12), transparent 26%),
+      radial-gradient(circle at 80% 90%, rgba(104,176,171,.12), transparent 30%),
+      #fbfaf8;
+    color:var(--ink);
+  }
+
+  .wrap{
+    width:min(1080px, 94vw);
+    margin:0 auto;
+    padding:28px 0 40px;
+  }
+
+  .hero{
+    text-align:center;
+    margin-bottom:20px;
+  }
+
+  .eyebrow{
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+    padding:7px 12px;
+    border-radius:999px;
+    background:#fff;
+    border:1px solid var(--line);
+    color:var(--muted);
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+
+  h1{
+    margin:12px 0 6px;
+    font-size:clamp(32px, 5vw, 56px);
+    line-height:1;
+    letter-spacing:-.03em;
+  }
+
+  .subtitle{
+    margin:0 auto;
+    max-width:680px;
+    color:var(--muted);
+    font-size:16px;
+    line-height:1.55;
+  }
+
+  .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+    margin:18px 0 20px;
+  }
+
+  button{
+    appearance:none;
+    border:0;
+    border-radius:12px;
+    padding:11px 16px;
+    font-weight:800;
+    cursor:pointer;
+    font-size:14px;
+    transition:.18s ease;
+  }
+
+  button:hover{transform:translateY(-1px)}
+  button:active{transform:translateY(0)}
+
+  .primary{
+    background:var(--accent);
+    color:white;
+    box-shadow:0 8px 18px rgba(124,109,242,.22);
+  }
+
+  .secondary{
+    background:white;
+    color:var(--ink);
+    border:1px solid var(--line);
+  }
+
+  .panel{
+    background:rgba(255,255,255,.88);
+    border:1px solid rgba(217,221,227,.9);
+    border-radius:22px;
+    box-shadow:0 16px 46px rgba(36,49,63,.08);
+    padding:18px;
+    backdrop-filter: blur(6px);
+  }
+
+  .instructions{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+    margin-bottom:16px;
+  }
+
+  .tip{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:12px 14px;
+    font-size:13px;
+    color:var(--muted);
+    line-height:1.4;
+  }
+
+  .tip strong{color:var(--ink)}
+
+  .bingo-head{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:8px;
+    margin-bottom:8px;
+  }
+
+  .letter{
+    display:grid;
+    place-items:center;
+    min-height:52px;
+    border-radius:14px;
+    font-weight:900;
+    font-size:26px;
+    color:white;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,.08);
+  }
+
+  .letter:nth-child(1){background:#7c6df2}
+  .letter:nth-child(2){background:#f2a65a}
+  .letter:nth-child(3){background:#68b0ab}
+  .letter:nth-child(4){background:#df7aa6}
+  .letter:nth-child(5){background:#5c8ed9}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:8px;
+  }
+
+  .cell{
+    position:relative;
+    min-height:116px;
+    padding:12px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:14px;
+    font-weight:700;
+    line-height:1.35;
+    cursor:pointer;
+    user-select:none;
+    transition:.18s ease;
+  }
+
+  .cell:hover{
+    border-color:#bbb2ff;
+    box-shadow:0 8px 18px rgba(36,49,63,.08);
+    transform:translateY(-1px);
+  }
+
+  .cell.marked{
+    background:var(--mark);
+    border-color:#a79df8;
+    box-shadow: inset 0 0 0 2px rgba(124,109,242,.18);
+  }
+
+  .cell.marked::after{
+    content:"✓";
+    position:absolute;
+    right:8px;
+    top:6px;
+    width:24px;
+    height:24px;
+    border-radius:999px;
+    display:grid;
+    place-items:center;
+    background:var(--accent);
+    color:#fff;
+    font-size:14px;
+    font-weight:900;
+  }
+
+  .cell.free{
+    background:linear-gradient(135deg,#f7f3ff,#fff7ee);
+    border:2px dashed #b8aefb;
+    cursor:default;
+  }
+
+  .cell.free::before{
+    content:"★";
+    display:block;
+    position:absolute;
+    top:8px;
+    left:10px;
+    color:var(--accent2);
+    font-size:18px;
+  }
+
+  .cell.bingo-line{
+    outline:3px solid #f2a65a;
+    outline-offset:1px;
+  }
+
+  .status{
+    margin-top:16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  .status strong{color:var(--ink)}
+
+  .modal{
+    position:fixed;
+    inset:0;
+    background:rgba(22,28,36,.56);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    z-index:100;
+  }
+
+  .modal.show{display:flex}
+
+  .modal-card{
+    width:min(520px, 92vw);
+    background:white;
+    border-radius:24px;
+    padding:30px;
+    text-align:center;
+    box-shadow:0 24px 70px rgba(0,0,0,.22);
+  }
+
+  .celebrate{
+    font-size:52px;
+    margin-bottom:4px;
+  }
+
+  .modal h2{
+    font-size:42px;
+    margin:0 0 8px;
+    letter-spacing:-.03em;
+  }
+
+  .modal p{
+    margin:0 0 20px;
+    color:var(--muted);
+    line-height:1.5;
+  }
+
+  .tiny{
+    margin-top:14px;
+    text-align:center;
+    color:#8a94a3;
+    font-size:12px;
+  }
+
+  @media (max-width:760px){
+    .wrap{width:min(96vw, 720px); padding-top:18px}
+    .panel{padding:12px}
+    .instructions{grid-template-columns:1fr}
+    .bingo-head,.grid{gap:5px}
+    .letter{min-height:42px;font-size:21px;border-radius:10px}
+    .cell{
+      min-height:92px;
+      padding:8px 6px;
+      border-radius:10px;
+      font-size:11px;
+      line-height:1.25;
+    }
+    .cell.marked::after{
+      width:20px;height:20px;right:4px;top:4px;font-size:12px;
+    }
+    .status{flex-direction:column;align-items:flex-start}
+  }
+
+  @media (max-width:430px){
+    .cell{min-height:84px;font-size:10px}
+    .hero .subtitle{font-size:14px}
+  }
+
+
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:24px;
+    transform:translateX(-50%) translateY(20px);
+    background:#24313f;
+    color:white;
+    padding:12px 16px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:800;
+    box-shadow:0 12px 30px rgba(0,0,0,.18);
+    opacity:0;
+    pointer-events:none;
+    transition:.2s ease;
+    z-index:120;
+  }
+
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  @media print{
+    body{background:white}
+    .toolbar,.instructions,.tiny{display:none!important}
+    .wrap{width:100%;padding:0}
+    .panel{box-shadow:none;border:none;padding:0}
+    .cell{min-height:128px}
+  }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">🍼 Virtual Baby Shower Game</div>
+      <h1>Baby Bonanza Bingo</h1>
+      <p class="subtitle">
+        Keep this card open during the shower. When something on your card happens, click the square.
+        Get five in a row — across, down, or diagonally — and shout <strong>BINGO!</strong>
+      </p>
+    </section>
+
+    <div class="toolbar">
+      <button class="primary" id="newCardBtn">🎲 Give Me a New Card</button>
+      <button class="secondary" id="clearBtn">↺ Clear My Marks</button>
+      <button class="secondary" id="printBtn">🖨 Print / Save PDF</button>
+    </div>
+
+    <section class="panel">
+      <div class="instructions">
+        <div class="tip"><strong>1. Watch & listen.</strong><br>Squares are based on fun things that may happen during the shower.</div>
+        <div class="tip"><strong>2. Click to mark.</strong><br>Tap a square once to mark it. Tap again to undo.</div>
+        <div class="tip"><strong>3. Get five in a row.</strong><br>Across, down, or diagonal wins. The center is a free space.</div>
+      </div>
+
+      <div class="bingo-head" aria-hidden="true">
+        <div class="letter">B</div>
+        <div class="letter">A</div>
+        <div class="letter">B</div>
+        <div class="letter">Y</div>
+        <div class="letter">!</div>
+      </div>
+
+      <div class="grid" id="bingoGrid" aria-label="Baby Bonanza Bingo Card"></div>
+
+      <div class="status">
+        <div><strong id="markedCount">1</strong> of 25 spaces marked</div>
+        <div id="cardId"></div>
+      </div>
+    </section>
+
+    <div class="tiny">Each browser creates its own randomized card from a large prompt pool and remembers it on refresh — ideal for groups of 28+ players.</div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="modal" id="bingoModal" role="dialog" aria-modal="true" aria-labelledby="bingoTitle">
+    <div class="modal-card">
+      <div class="celebrate">🎉🍼🎊</div>
+      <h2 id="bingoTitle">BINGO!</h2>
+      <p>You did it! Unmute, wave wildly, or type <strong>BINGO!</strong> in the chat so the host can celebrate your win.</p>
+      <button class="primary" id="closeModalBtn">Keep Playing</button>
+    </div>
+  </div>
+
+<script>
+const prompts = [
+  'Someone says “Awww!”',
+  'Someone says “So cute!”',
+  'Someone says “Congratulations!”',
+  'A baby name is mentioned',
+  'Someone talks about diapers',
+  'A grandparent is mentioned',
+  'Someone talks about sleep',
+  'Someone shows a gift on camera',
+  'Someone mentions coffee',
+  'A nursery is mentioned',
+  'A baby photo is shown',
+  'Someone says “four babies!”',
+  'Someone gives parenting advice',
+  'Someone mentions a stroller',
+  'Someone mentions a pacifier',
+  'Someone mentions a onesie',
+  'Someone laughs really hard',
+  'Someone mentions a bottle',
+  'Someone talks about a due date',
+  'Someone mentions baby clothes',
+  'Someone says “adorable”',
+  'Someone says “precious”',
+  'Someone mentions baby wipes',
+  'Someone mentions a diaper bag',
+  'Someone mentions a baby blanket',
+  'Someone says “I can’t wait to meet the baby!”',
+  'A pet appears on camera',
+  'Someone is talking while muted',
+  'Someone says “They grow so fast!”',
+  'Someone tells a parenting story',
+  'A pregnancy craving is mentioned',
+  'Someone predicts a birth weight',
+  'Someone gets emotional',
+  'Someone says “bundle of joy”',
+  'Someone mentions a car seat',
+  'Someone talks about feeding',
+  'Someone mentions swaddling',
+  'Someone talks about labor or delivery',
+  'Someone guesses who a baby will look like',
+  'Someone mentions a middle name',
+  'Someone shares a childhood memory',
+  'Someone mentions tummy time',
+  'Someone talks about a baby shower gift',
+  'Someone shares their best baby tip',
+  'Someone mentions a lullaby',
+  'Someone says “tiny toes”',
+  'Someone mentions a bedtime routine',
+  'Someone mentions a baby monitor',
+  'Someone says “You’ll never sleep again!”',
+  'Someone mentions a rocking chair',
+  'Someone talks about baby hair',
+  'Someone mentions a changing table',
+  'Someone talks about a favorite children’s book',
+  'Someone mentions a stuffed animal',
+  'Someone joins the party late',
+  'Someone freezes on camera',
+  'Someone says “You’re on mute!”',
+  'Two people talk at the same time',
+  'Someone waves at the camera',
+  'Someone uses a virtual background',
+  'Someone says “Can you hear me?”',
+  'Someone disappears to grab something',
+  'Someone holds something too close to the camera',
+  'Someone says “Wait, what did I miss?”',
+  'Someone says “That takes me back!”',
+  'Someone shares an embarrassing kid story',
+  'Someone mentions a 3 AM feeding',
+  'Someone talks about a diaper blowout',
+  'Someone mentions spit-up',
+  'Someone says “Enjoy every minute!”',
+  'Someone says “Sleep when the baby sleeps”',
+  'Someone talks about baby hiccups',
+  'Someone mentions a baby swing',
+  'Someone talks about first smiles',
+  'Someone mentions a baby carrier',
+  'Someone says “It goes by so fast!”',
+  'Someone talks about baby shoes',
+  'Someone mentions bath time',
+  'Someone talks about a first holiday',
+  'Someone mentions teething',
+  'Someone says “Look at that little face!”',
+  'Someone mentions a keepsake',
+  'Someone talks about baby-proofing',
+  'Someone mentions hand-me-downs'
+];
+
+const FREE_INDEX = 12;
+const STORAGE_KEY = "babyBonanzaBingo_v1";
+let card = [];
+let marks = new Set([FREE_INDEX]);
+let lastWinSignature = "";
+
+function shuffle(array){
+  const a = [...array];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function generateCard(){
+  const selected = shuffle(prompts).slice(0,24);
+  const built = [];
+  let idx = 0;
+  for(let i=0;i<25;i++){
+    if(i===FREE_INDEX){
+      built.push("⭐ BABY BONANZA ⭐\nFREE SPACE");
+    } else {
+      built.push(selected[idx++]);
+    }
+  }
+  return built;
+}
+
+function makeCardId(){
+  return "Card " + Math.random().toString(36).slice(2,7).toUpperCase();
+}
+
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    card,
+    marks:[...marks],
+    id:document.body.dataset.cardId
+  }));
+}
+
+function loadState(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if(saved && Array.isArray(saved.card) && saved.card.length===25){
+      card=saved.card;
+      marks=new Set(saved.marks || [FREE_INDEX]);
+      marks.add(FREE_INDEX);
+      document.body.dataset.cardId=saved.id || makeCardId();
+      return;
+    }
+  }catch(e){}
+  newCard(false);
+}
+
+function render(){
+  const grid=document.getElementById("bingoGrid");
+  grid.innerHTML="";
+  card.forEach((text,index)=>{
+    const cell=document.createElement("div");
+    cell.className="cell";
+    if(index===FREE_INDEX) cell.classList.add("free","marked");
+    if(marks.has(index) && index!==FREE_INDEX) cell.classList.add("marked");
+    cell.textContent=text;
+    cell.setAttribute("role","button");
+    cell.setAttribute("tabindex", index===FREE_INDEX ? "-1" : "0");
+    cell.setAttribute("aria-pressed", marks.has(index) ? "true" : "false");
+
+    if(index!==FREE_INDEX){
+      const toggle=()=>{
+        if(marks.has(index)) marks.delete(index);
+        else marks.add(index);
+        lastWinSignature="";
+        saveState();
+        render();
+        checkBingo();
+      };
+      cell.addEventListener("click",toggle);
+      cell.addEventListener("keydown",(e)=>{
+        if(e.key==="Enter" || e.key===" "){e.preventDefault();toggle();}
+      });
+    }
+    grid.appendChild(cell);
+  });
+
+  document.getElementById("markedCount").textContent=marks.size;
+  document.getElementById("cardId").textContent=document.body.dataset.cardId || "";
+}
+
+const lines = [
+  [0,1,2,3,4],[5,6,7,8,9],[10,11,12,13,14],[15,16,17,18,19],[20,21,22,23,24],
+  [0,5,10,15,20],[1,6,11,16,21],[2,7,12,17,22],[3,8,13,18,23],[4,9,14,19,24],
+  [0,6,12,18,24],[4,8,12,16,20]
+];
+
+function checkBingo(){
+  const winning = lines.filter(line => line.every(i => marks.has(i)));
+  document.querySelectorAll(".cell").forEach(c=>c.classList.remove("bingo-line"));
+
+  if(winning.length){
+    winning.forEach(line=>{
+      line.forEach(i=>{
+        const cell=document.querySelectorAll(".cell")[i];
+        if(cell) cell.classList.add("bingo-line");
+      });
+    });
+
+    const signature = winning.map(l=>l.join("-")).join("|");
+    if(signature !== lastWinSignature){
+      lastWinSignature=signature;
+      document.getElementById("bingoModal").classList.add("show");
+    }
+    return true;
+  }
+  return false;
+}
+
+function showToast(message){
+  const toast=document.getElementById("toast");
+  toast.textContent=message;
+  toast.classList.add("show");
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(()=>toast.classList.remove("show"),1800);
+}
+
+function newCard(showMessage=true){
+  card=generateCard();
+  marks=new Set([FREE_INDEX]);
+  lastWinSignature="";
+  document.body.dataset.cardId=makeCardId();
+  saveState();
+  render();
+  if(showMessage) showToast("🎲 New card ready!");
+}
+
+function clearMarks(){
+  marks=new Set([FREE_INDEX]);
+  lastWinSignature="";
+  saveState();
+  render();
+  showToast("↺ Marks cleared!");
+}
+
+document.getElementById("newCardBtn").addEventListener("click",()=>newCard(true));
+document.getElementById("clearBtn").addEventListener("click",clearMarks);
+document.getElementById("printBtn").addEventListener("click",()=>window.print());
+document.getElementById("closeModalBtn").addEventListener("click",()=>{
+  document.getElementById("bingoModal").classList.remove("show");
+});
+document.getElementById("bingoModal").addEventListener("click",(e)=>{
+  if(e.target.id==="bingoModal") e.currentTarget.classList.remove("show");
+});
+
+loadState();
+render();
+checkBingo();
+</script>
+</body>
+</html>
